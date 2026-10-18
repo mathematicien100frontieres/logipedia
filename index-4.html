@@ -1,0 +1,1645 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Logipédia</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: title, status, an SVG graph of possible worlds (drag to move,
+     tap to select then tap another world to toggle an accessibility arrow),
+     an atom-toggle panel for the selected world, a formula bar with a
+     symbol palette, and a short note on the semantics. Same dark, blue-accent
+     system as the rest of this person's tools: the graph stays quiet so the
+     blue/red truth-highlighting is what draws the eye. */
+  :root{
+    --bg:#0b0c10;
+    --panel:#121319;
+    --panel-2:#191b22;
+    --fg:#ece9e2;
+    --fg-dim:#8d8c96;
+    --accent:#4f8fe6;
+    --accent-rgb:79,143,230;
+    --warn:#d1715a;
+    --warn-rgb:209,113,90;
+    color-scheme: dark;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+  }
+
+  .page{
+    max-width:460px;
+    margin-inline:auto;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    padding-block:28px 40px;
+    min-height:100vh;
+    min-height:100dvh;
+  }
+
+  .foot{
+    margin-top:auto;
+    padding-top:28px;
+    text-align:center;
+    font-size:0.78rem;
+    color:var(--fg-dim);
+    opacity:.65;
+  }
+  .foot a{ color:var(--accent); }
+
+  header.top{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+  }
+  h1{
+    font-family:'Fraunces',Georgia,'Times New Roman',serif;
+    font-weight:600;
+    font-size:clamp(1.3rem,6vw,1.7rem);
+    line-height:1.1;
+    letter-spacing:-0.01em;
+    margin:0;
+    text-wrap:balance;
+  }
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:0.85rem;
+    color:var(--accent);
+    background:rgba(var(--accent-rgb),0.12);
+    border:1px solid rgba(var(--accent-rgb),0.3);
+    padding:5px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+    flex:none;
+  }
+
+  .status{
+    margin:0;
+    font-size:0.88rem;
+    color:var(--fg-dim);
+    min-height:1.3em;
+  }
+
+  .canvas-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio:5/6;
+    border-radius:16px;
+    background:var(--panel);
+    overflow:hidden;
+  }
+  #graph{
+    width:100%;
+    height:100%;
+    display:block;
+    touch-action:none;
+  }
+  .edge path{
+    fill:none;
+    stroke:var(--fg-dim);
+    stroke-width:1.6;
+    opacity:.65;
+  }
+  marker#arrow path{ fill:var(--fg-dim); opacity:.85; }
+
+  .world circle{
+    fill:var(--panel-2);
+    stroke:var(--fg-dim);
+    stroke-width:1.4;
+    cursor:pointer;
+  }
+  .world text{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    fill:var(--fg);
+    text-anchor:middle;
+    dominant-baseline:central;
+    pointer-events:none;
+    user-select:none;
+  }
+  .world{ touch-action:none; }
+  .world.active circle{ stroke:var(--accent); stroke-width:2.6; }
+  .world.evalTrue circle{ fill:rgba(var(--accent-rgb),.3); stroke:var(--accent); }
+  .world.evalFalse circle{ fill:rgba(var(--warn-rgb),.22); stroke:var(--warn); }
+  .world:focus-visible circle{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .hint{
+    position:absolute;
+    bottom:8px;
+    right:10px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    color:var(--fg-dim);
+    opacity:.5;
+    pointer-events:none;
+  }
+
+  .atoms-panel{
+    background:var(--panel);
+    border-radius:12px;
+    padding:12px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .atoms-panel[hidden]{ display:none; }
+  .atoms-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .atom-chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.85rem;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background:transparent;
+    color:var(--fg-dim);
+    cursor:pointer;
+  }
+  .atom-chip.true{
+    color:var(--accent);
+    border-color:rgba(var(--accent-rgb),.45);
+    background:rgba(var(--accent-rgb),.14);
+  }
+  .world-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip-btn{
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:0.8rem;
+    padding:7px 12px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.12);
+    background:var(--panel-2);
+    color:var(--fg-dim);
+    cursor:pointer;
+  }
+  .chip-btn.danger{ color:var(--warn); border-color:rgba(var(--warn-rgb),.3); }
+
+  .formula-bar{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .symbols-row{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom:2px;
+  }
+  .sym-btn{
+    flex:none;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:1rem;
+    width:34px;
+    height:34px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.12);
+    background:var(--panel);
+    color:var(--fg);
+    cursor:pointer;
+  }
+  .sym-btn.atom{ color:var(--accent); }
+  #formulaInput{
+    width:100%;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:1rem;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.14);
+    background:var(--panel);
+    color:var(--fg);
+  }
+  #formulaInput:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .formula-feedback{
+    margin:0;
+    font-size:0.82rem;
+    color:var(--fg-dim);
+    min-height:1.2em;
+  }
+  .formula-feedback.error{ color:var(--warn); }
+
+  .controls{ display:flex; gap:10px; }
+  button.action{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:11px 14px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.1);
+    background:var(--panel);
+    color:var(--fg);
+    font:500 0.9rem 'IBM Plex Sans',sans-serif;
+    cursor:pointer;
+  }
+  button.action:hover{ border-color:rgba(var(--accent-rgb),.4); }
+  button.action svg{ width:16px; height:16px; flex:none; }
+
+  .tabs{
+    display:flex;
+    gap:6px;
+    padding:4px;
+    background:var(--panel);
+    border-radius:12px;
+  }
+  .tab-btn{
+    flex:1;
+    padding:9px 6px;
+    border-radius:9px;
+    border:none;
+    background:transparent;
+    color:var(--fg-dim);
+    font:500 0.76rem 'IBM Plex Sans',sans-serif;
+    cursor:pointer;
+  }
+  .tab-btn.active{
+    background:rgba(var(--accent-rgb),.16);
+    color:var(--accent);
+  }
+
+  .panel[hidden]{ display:none; }
+
+  .panel-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:4px;
+  }
+  .eyebrow{
+    margin:0;
+    font-size:0.82rem;
+    color:var(--fg-dim);
+  }
+
+  .wiki{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .wiki h2{
+    font-family:'Fraunces',Georgia,serif;
+    font-weight:600;
+    font-size:1.15rem;
+    margin:10px 0 0;
+    color:var(--fg);
+  }
+  .wiki p{
+    margin:0;
+    font-size:0.92rem;
+    line-height:1.6;
+    color:var(--fg);
+    max-width:65ch;
+  }
+  .wiki p.lead{
+    color:var(--fg-dim);
+    font-size:0.95rem;
+  }
+  .wiki code{
+    font-family:'IBM Plex Mono',monospace;
+    background:var(--panel);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+  }
+  .wiki a{
+    color:var(--accent);
+    text-decoration:underline;
+    text-underline-offset:2px;
+  }
+  .wiki a:hover{ text-decoration:none; }
+  .connectors{
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .connectors > div{
+    display:flex;
+    gap:10px;
+    align-items:baseline;
+    padding:8px 10px;
+    background:var(--panel);
+    border-radius:8px;
+  }
+  .connectors dt{
+    margin:0;
+    flex:none;
+    width:68px;
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--accent);
+    font-size:0.95rem;
+    overflow-wrap:break-word;
+    word-break:break-word;
+  }
+  .connectors dd{
+    margin:0;
+    font-size:0.88rem;
+    color:var(--fg-dim);
+    line-height:1.5;
+  }
+
+  .legend{
+    margin:0;
+    padding:0;
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .legend li{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 10px;
+    background:var(--panel);
+    border-radius:8px;
+    font-size:0.88rem;
+    color:var(--fg-dim);
+    line-height:1.5;
+  }
+  .legend .swatch{
+    flex:none;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    border:2px solid var(--fg-dim);
+    background:var(--panel-2);
+  }
+  .legend .swatch.true{ border-color:var(--accent); background:rgba(var(--accent-rgb),.3); }
+  .legend .swatch.false{ border-color:var(--warn); background:rgba(var(--warn-rgb),.22); }
+  .legend .swatch.active{ border-color:var(--accent); border-width:3px; background:var(--panel-2); }
+
+  .demo{
+    background:var(--panel);
+    border-radius:12px;
+    padding:14px 10px 16px;
+  }
+  .demo-svg{ width:100%; height:auto; display:block; }
+  .demo-svg circle{
+    fill:var(--panel-2);
+    stroke:var(--fg-dim);
+    stroke-width:1.6;
+  }
+  .demo-edge{
+    fill:none;
+    stroke:var(--fg-dim);
+    stroke-width:1.6;
+    opacity:.6;
+  }
+  marker#arrow-demo path{ fill:var(--fg-dim); }
+  .demo-name{
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:11px;
+    fill:var(--fg-dim);
+    text-anchor:middle;
+  }
+  .demo-prop, .demo-eval{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    font-weight:500;
+    fill:var(--accent);
+    text-anchor:middle;
+    opacity:0;
+  }
+  .demo-svg .demo-w1 circle{ animation:demoFillW1 6s ease-in-out infinite; }
+  .demo-svg .demo-w2 circle{ animation:demoFillW2 6s ease-in-out infinite; }
+  .demo-prop{ animation:demoProp 6s ease-in-out infinite; }
+  .demo-eval{ animation:demoEval 6s ease-in-out infinite; }
+  .demo-edge{ animation:demoEdge 6s ease-in-out infinite; }
+  .demo-caption{
+    margin:10px 2px 0;
+    font-size:0.82rem;
+    color:var(--fg-dim);
+    line-height:1.5;
+  }
+
+  @keyframes demoProp{
+    0%,10%{ opacity:0; }
+    20%,70%{ opacity:1; }
+    88%,100%{ opacity:0; }
+  }
+  @keyframes demoEval{
+    0%,45%{ opacity:0; }
+    55%,70%{ opacity:1; }
+    88%,100%{ opacity:0; }
+  }
+  @keyframes demoFillW2{
+    0%,10%{ fill:var(--panel-2); stroke:var(--fg-dim); }
+    20%,85%{ fill:rgba(var(--accent-rgb),.3); stroke:var(--accent); }
+    95%,100%{ fill:var(--panel-2); stroke:var(--fg-dim); }
+  }
+  @keyframes demoFillW1{
+    0%,45%{ fill:var(--panel-2); stroke:var(--fg-dim); }
+    55%,85%{ fill:rgba(var(--accent-rgb),.3); stroke:var(--accent); }
+    95%,100%{ fill:var(--panel-2); stroke:var(--fg-dim); }
+  }
+  @keyframes demoEdge{
+    0%,30%{ stroke:var(--fg-dim); opacity:.6; }
+    40%,85%{ stroke:var(--accent); opacity:1; }
+    95%,100%{ stroke:var(--fg-dim); opacity:.6; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .demo-svg .demo-w1 circle, .demo-svg .demo-w2 circle, .demo-prop, .demo-eval, .demo-edge{
+      animation:none;
+    }
+    .demo-prop, .demo-eval{ opacity:1; }
+    .demo-svg .demo-w1 circle, .demo-svg .demo-w2 circle{ fill:rgba(var(--accent-rgb),.3); stroke:var(--accent); }
+    .demo-edge{ stroke:var(--accent); opacity:1; }
+  }
+
+  .chip-btn.on{
+    color:var(--accent);
+    border-color:rgba(var(--accent-rgb),.4);
+    background:rgba(var(--accent-rgb),.12);
+  }
+
+  .translate-panel{
+    background:var(--panel);
+    border-radius:12px;
+    padding:4px 12px;
+    display:flex;
+    flex-direction:column;
+  }
+  .translate-panel[hidden]{ display:none; }
+  .translate-row{
+    margin:0;
+    font-size:0.82rem;
+    line-height:1.5;
+    color:var(--fg-dim);
+    padding:8px 0;
+    border-bottom:1px solid rgba(255,255,255,.07);
+  }
+  .translate-row:last-child{ border-bottom:none; }
+  .translate-row b{
+    color:var(--accent);
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+  }
+
+  .gallery-grid{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .gallery-card{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    padding:12px 14px;
+    border-radius:12px;
+    background:var(--panel);
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .gallery-card.unlocked{ border-color:rgba(var(--accent-rgb),.35); }
+  .gallery-badge{
+    flex:none;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.95rem;
+    background:var(--panel-2);
+    border:2px solid var(--fg-dim);
+    color:var(--fg-dim);
+  }
+  .gallery-card.unlocked .gallery-badge{
+    border-color:var(--accent);
+    color:var(--accent);
+    background:rgba(var(--accent-rgb),.14);
+  }
+  .gallery-text{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+    min-width:0;
+  }
+  .gallery-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+  }
+  .gallery-title{
+    font:600 0.9rem 'IBM Plex Sans',sans-serif;
+    color:var(--fg-dim);
+  }
+  .gallery-card.unlocked .gallery-title{ color:var(--fg); }
+  .gallery-status{
+    flex:none;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.7rem;
+    color:var(--fg-dim);
+    opacity:.7;
+  }
+  .gallery-card.unlocked .gallery-status{ color:var(--accent); opacity:1; }
+  .gallery-desc{
+    margin:0;
+    font-size:0.82rem;
+    color:var(--fg-dim);
+    line-height:1.5;
+  }
+  .gallery-empty{
+    margin:0;
+    font-size:0.85rem;
+    color:var(--fg-dim);
+    line-height:1.5;
+    padding:10px 2px;
+  }
+  .section-gap{ margin-top:18px; }
+
+  .capture-grid{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .capture-card{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:10px;
+    border-radius:12px;
+    background:var(--panel);
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .capture-card img{
+    flex:none;
+    width:84px;
+    height:63px;
+    border-radius:8px;
+    background:var(--panel-2);
+    object-fit:contain;
+  }
+  .capture-text{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .capture-formula{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.85rem;
+    color:var(--fg);
+    overflow-wrap:break-word;
+  }
+  .capture-meta{
+    font-size:0.72rem;
+    color:var(--fg-dim);
+  }
+  .capture-del{
+    flex:none;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.12);
+    background:var(--panel-2);
+    color:var(--fg-dim);
+    cursor:pointer;
+    font-size:0.9rem;
+    line-height:1;
+  }
+</style>
+
+<div class="page">
+  <header class="top">
+    <h1>Logipédia</h1>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" id="tabIntroBtn" type="button" role="tab" aria-selected="true">Logipédia</button>
+    <button class="tab-btn" id="tabToolBtn" type="button" role="tab" aria-selected="false">Mondes possibles</button>
+    <button class="tab-btn" id="tabGalleryBtn" type="button" role="tab" aria-selected="false">Galerie</button>
+  </nav>
+
+  <section id="panelIntro" class="panel">
+    <article class="wiki">
+      <p class="lead">La <a href="https://fr.wikipedia.org/wiki/Logique_modale" target="_blank" rel="noopener">logique modale</a> étudie des énoncés qui ne sont pas vrais ou faux dans l'absolu, mais selon le monde qu'on regarde. Ce mini-wiki pose les bases avant de les manipuler dans l'onglet <b>Mondes possibles</b>.</p>
+
+      <h2>Qu'est-ce qu'une proposition ?</h2>
+      <p>Une proposition — ou assertion — est un énoncé auquel on peut attribuer une valeur de vérité : vrai ou faux, jamais les deux, jamais ni l'un ni l'autre. « Il pleut à Baie-Mahault » est une proposition. « Ferme la porte ! » n'en est pas une : ce n'est ni vrai ni faux, c'est un ordre. En logique, on note les propositions par des lettres : <code>p</code>, <code>q</code>, <code>r</code>…</p>
+      <p>Certaines propositions dépendent de la situation : « il pleut », « j'ai cours demain » — on dit qu'elles sont <b>contingentes</b>, vraies dans certains cas et fausses dans d'autres. D'autres sont vraies quoi qu'il arrive, comme « 2 + 2 = 4 » — elles sont <b>nécessaires</b>. C'est précisément cette différence que □ et ◇ vont permettre d'exprimer.</p>
+
+      <h2>Les connecteurs</h2>
+      <dl class="connectors">
+        <div><dt>¬p</dt><dd>négation — vrai si p est faux, et inversement.</dd></div>
+        <div><dt>p ∧ q</dt><dd>conjonction (« et ») — vrai seulement si p et q sont vrais tous les deux.</dd></div>
+        <div><dt>p ∨ q</dt><dd>disjonction (« ou ») — vrai dès que l'un des deux est vrai.</dd></div>
+        <div><dt>p → q</dt><dd>implication — faux uniquement quand p est vrai et q est faux.</dd></div>
+        <div><dt>p ↔ q</dt><dd>équivalence — vrai quand p et q ont la même valeur de vérité.</dd></div>
+      </dl>
+
+      <h2>Deux symboles en plus : □ et ◇</h2>
+      <p>Imaginez demain : il pleut ou il ne pleut pas, vous avez cours ou pas — chaque combinaison possible est un monde différent. Le monde où vous êtes maintenant n'est qu'un cas parmi d'autres envisageables, et certains de ces mondes sont accessibles depuis le vôtre (une suite possible des choses), d'autres non. La logique modale ajoute deux opérateurs qui parlent de plusieurs de ces <b>mondes possibles</b> à la fois, et non plus d'une seule situation.</p>
+      <dl class="connectors">
+        <div><dt>□p</dt><dd>« nécessairement p » — p est vrai dans tous les mondes accessibles depuis celui où l'on se place.</dd></div>
+        <div><dt>◇p</dt><dd>« possiblement p » — p est vrai dans au moins un des mondes accessibles.</dd></div>
+      </dl>
+
+      <h2>La sémantique de Kripke</h2>
+      <p>Ce formalisme porte le nom de <a href="https://fr.wikipedia.org/wiki/Saul_Kripke" target="_blank" rel="noopener">Saul Kripke</a>, logicien et philosophe américain qui l'a posé à la fin des années 1950, alors qu'il était encore adolescent — ses premiers articles de logique modale datent du lycée, avant même son entrée à l'université. Son idée a transformé un symbolisme un peu flou en un objet mathématique précis, qu'on appelle aujourd'hui un <b>modèle de Kripke</b>.</p>
+      <p>Pour donner un sens précis à □ et ◇, un modèle de Kripke fixe trois choses : un ensemble de mondes, une relation d'accessibilité entre eux (quel monde peut « voir » quel autre), et pour chaque monde, quelles propositions y sont vraies. Évaluer une formule revient alors à parcourir ce graphe, un monde après l'autre.</p>
+      <p>Si un monde w peut « voir » un monde w' (une flèche part de w vers w'), on dit que w' est un <b>successeur</b> de w — un monde que w peut atteindre. Évaluer □p ou ◇p dans un monde revient alors à regarder ce qui se passe chez tous ses successeurs, ou chez au moins un d'entre eux.</p>
+      <p>Un cas amusant : un monde sans aucun successeur rend automatiquement □p vrai — il n'existe aucun contre-exemple possible — et ◇p automatiquement faux. Contre-intuitif au premier abord, mais rigoureusement correct : c'est ce qu'on appelle la vacuité.</p>
+
+      <h2>Propriétés des relations</h2>
+      <p>La relation d'accessibilité peut avoir, ou non, certaines propriétés remarquables. Chacune porte un nom, correspond à un axiome en logique modale, et — dans l'onglet <b>Galerie</b> — un badge à débloquer en la construisant vous-même.</p>
+      <dl class="connectors">
+        <div><dt>Réflexive</dt><dd>chaque monde se voit lui-même : une flèche qui part de w et revient à w, dessinée comme une petite boucle sur le monde. Axiome associé : <code>□p → p</code>.</dd></div>
+        <div><dt>Symétrique</dt><dd>si w voit w', alors w' voit w aussi — l'accessibilité va dans les deux sens. Axiome associé : <code>p → □◇p</code>.</dd></div>
+        <div><dt>Transitive</dt><dd>si w voit w' et w' voit w'', alors w voit directement w'' aussi, sans étape intermédiaire. Axiome associé : <code>□p → □□p</code>.</dd></div>
+        <div><dt>Sérielle</dt><dd>chaque monde a au moins un successeur — aucun monde n'est une impasse. Axiome associé : <code>□p → ◇p</code>.</dd></div>
+        <div><dt>Euclidienne</dt><dd>si w voit w' et w voit w'', alors w' voit w'' aussi. Axiome associé : <code>◇p → □◇p</code>.</dd></div>
+      </dl>
+      <p>Un modèle sans aucune de ces propriétés reste parfaitement valide : c'est la logique <b>K</b>, la plus générale de toutes. Ajouter la réflexivité donne la logique <b>T</b>, ajouter en plus la transitivité donne <b>S4</b>, et réflexivité + symétrie + transitivité ensemble donnent <b>S5</b>, où tous les mondes accessibles finissent par se voir mutuellement.</p>
+
+      <h2>Un exemple concret</h2>
+      <p>Deux mondes, une proposition « il pleut », et une flèche qui dit que, depuis aujourd'hui, demain est envisageable.</p>
+      <div class="demo">
+        <svg viewBox="0 0 280 150" class="demo-svg" aria-hidden="true">
+          <defs>
+            <marker id="arrow-demo" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z"></path>
+            </marker>
+          </defs>
+          <path class="demo-edge" d="M98,75 Q140,52 182,75" marker-end="url(#arrow-demo)"></path>
+          <g class="demo-w1"><circle cx="66" cy="75" r="32"></circle></g>
+          <g class="demo-w2"><circle cx="214" cy="75" r="32"></circle></g>
+          <text class="demo-name" x="66" y="33">Aujourd'hui</text>
+          <text class="demo-eval" x="66" y="123">◇(il pleut)</text>
+          <text class="demo-name" x="214" y="33">Demain</text>
+          <text class="demo-prop" x="214" y="123">il pleut</text>
+        </svg>
+        <p class="demo-caption">« Il pleut » est vrai à Demain. Comme Demain est un successeur d'Aujourd'hui, il existe un monde accessible où il pleut : <code>◇(il pleut)</code> est donc vrai Aujourd'hui — même s'il ne pleut pas aujourd'hui même.</p>
+      </div>
+
+      <h2>Comment lire les couleurs</h2>
+      <p>Dans l'onglet <b>Mondes possibles</b>, chaque monde change d'apparence selon ce qui s'y passe :</p>
+      <ul class="legend">
+        <li><span class="swatch"></span><span>neutre — aucune formule n'est évaluée pour l'instant.</span></li>
+        <li><span class="swatch true"></span><span>bleu — la formule tapée est vraie dans ce monde.</span></li>
+        <li><span class="swatch false"></span><span>orange — la formule tapée est fausse dans ce monde.</span></li>
+        <li><span class="swatch active"></span><span>anneau épais — ce monde est sélectionné, pas une troisième valeur de vérité : juste le monde qu'on modifie actuellement.</span></li>
+      </ul>
+
+      <p class="lead">Direction l'onglet <b>Mondes possibles</b> pour construire un modèle et voir tout ça en mouvement.</p>
+    </article>
+  </section>
+
+  <section id="panelTool" class="panel" hidden>
+    <div class="panel-head">
+      <p class="eyebrow">Construisez un modèle, testez une formule</p>
+      <div class="chip" id="counter">— / —</div>
+    </div>
+
+    <p class="status" id="status" aria-live="polite">Touchez un monde pour le sélectionner.</p>
+
+    <div class="canvas-wrap" id="canvasWrap">
+      <svg id="graph" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z"></path>
+          </marker>
+        </defs>
+        <rect id="bg" x="0" y="0" width="400" height="300" fill="transparent"></rect>
+        <g id="edgesLayer"></g>
+        <g id="worldsLayer"></g>
+      </svg>
+      <span class="hint">touchez le fond pour créer un monde</span>
+    </div>
+
+    <div class="atoms-panel" id="atomsPanel" hidden>
+      <div class="atoms-row" id="atomsRow"></div>
+      <div class="world-actions">
+        <button class="chip-btn" id="loopBtn" type="button">Boucle réflexive</button>
+        <button class="chip-btn danger" id="deleteWorldBtn" type="button">Supprimer ce monde</button>
+      </div>
+    </div>
+
+    <div class="formula-bar">
+      <div class="symbols-row" id="symbolsRow"></div>
+      <input type="text" id="formulaInput" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ex. <>p ou ◇p">
+      <p class="formula-feedback" id="formulaFeedback"></p>
+    </div>
+
+    <div class="controls">
+      <button class="action" id="translateToggle" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Traduction FR
+      </button>
+      <button class="action" id="resetBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+        Réinitialiser
+      </button>
+    </div>
+
+    <div class="translate-panel" id="translatePanel" hidden></div>
+
+    <div class="controls">
+      <button class="action" id="captureBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="4"/><path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/></svg>
+        Capturer dans la galerie
+      </button>
+    </div>
+  </section>
+
+  <section id="panelGallery" class="panel" hidden>
+    <div class="panel-head">
+      <p class="eyebrow">Débloqué en construisant des modèles</p>
+      <div class="chip" id="galleryCounter">0 / 0</div>
+    </div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+
+    <div class="panel-head section-gap">
+      <p class="eyebrow">Vos captures</p>
+    </div>
+    <div class="capture-grid" id="captureGrid"></div>
+  </section>
+
+  <footer class="foot">Logipédia — <a href="https://github.com/mathematicien100frontieres" target="_blank" rel="noopener">@mathematicien100frontieres</a></footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var STORAGE_KEY = 'mondes-possibles-state-v1';
+  var RADIUS = 22;
+
+  var svg = document.getElementById('graph');
+  var bgRect = document.getElementById('bg');
+  var edgesLayer = document.getElementById('edgesLayer');
+  var worldsLayer = document.getElementById('worldsLayer');
+  var counterEl = document.getElementById('counter');
+  var statusEl = document.getElementById('status');
+  var atomsPanel = document.getElementById('atomsPanel');
+  var atomsRow = document.getElementById('atomsRow');
+  var loopBtn = document.getElementById('loopBtn');
+  var deleteWorldBtn = document.getElementById('deleteWorldBtn');
+  var symbolsRow = document.getElementById('symbolsRow');
+  var formulaInput = document.getElementById('formulaInput');
+  var formulaFeedback = document.getElementById('formulaFeedback');
+  var resetBtn = document.getElementById('resetBtn');
+  var translateToggle = document.getElementById('translateToggle');
+  var translatePanel = document.getElementById('translatePanel');
+  var galleryGrid = document.getElementById('galleryGrid');
+  var galleryCounter = document.getElementById('galleryCounter');
+  var captureBtn = document.getElementById('captureBtn');
+  var captureGrid = document.getElementById('captureGrid');
+
+  var state = null;
+
+  /* ---------- model helpers ---------- */
+
+  function defaultState(){
+    return {
+      worlds: [],
+      nextId: 1,
+      edges: [],
+      atoms: ['p','q'],
+      valuation: {},
+      formula: '',
+      active: null,
+      unlocked: [],
+      translate: false,
+      captures: []
+    };
+  }
+
+  function sanitize(d){
+    if(!d || !Array.isArray(d.worlds)) return defaultState();
+    return {
+      worlds: d.worlds.map(function(w){ return {id:w.id,x:w.x,y:w.y}; }),
+      nextId: d.nextId || (d.worlds.length+1),
+      edges: Array.isArray(d.edges) ? d.edges.slice() : [],
+      atoms: Array.isArray(d.atoms) ? d.atoms.slice() : ['p'],
+      valuation: d.valuation || {},
+      formula: typeof d.formula === 'string' ? d.formula : '',
+      active: d.active || null,
+      unlocked: Array.isArray(d.unlocked) ? d.unlocked.slice() : [],
+      translate: !!d.translate,
+      captures: Array.isArray(d.captures) ? d.captures.slice() : []
+    };
+  }
+
+  function loadFromStorageOrFresh(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(parsed && Array.isArray(parsed.worlds)) return sanitize(parsed);
+      }
+    }catch(e){}
+    return defaultState();
+  }
+
+  function persist(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  function getSnapshot(){ return state; }
+
+  function findWorld(id){
+    for(var i=0;i<state.worlds.length;i++) if(state.worlds[i].id===id) return state.worlds[i];
+    return null;
+  }
+
+  function successorsOf(id){
+    return state.edges.filter(function(e){ return e[0]===id; }).map(function(e){ return e[1]; });
+  }
+
+  function hasEdge(a,b){
+    return state.edges.some(function(e){ return e[0]===a && e[1]===b; });
+  }
+
+  function toggleEdge(a,b){
+    if(hasEdge(a,b)){
+      state.edges = state.edges.filter(function(e){ return !(e[0]===a && e[1]===b); });
+    } else {
+      state.edges.push([a,b]);
+    }
+  }
+
+  function ensureValuation(id){
+    if(!state.valuation[id]) state.valuation[id] = {};
+    state.atoms.forEach(function(name){
+      if(!(name in state.valuation[id])) state.valuation[id][name] = false;
+    });
+  }
+
+  /* ---------- achievements (frame properties) ---------- */
+
+  var ACHIEVEMENTS = [
+    { id:'reflexive', title:'Réflexif', desc:"Un monde qui se voit lui-même : une boucle vers soi.", check:function(){
+        return state.edges.some(function(e){ return e[0]===e[1]; });
+      }},
+    { id:'symmetric', title:'Symétrique', desc:"Deux mondes qui se voient mutuellement.", check:function(){
+        return state.edges.some(function(e){ return e[0]!==e[1] && hasEdge(e[1], e[0]); });
+      }},
+    { id:'transitive', title:'Transitif', desc:"w voit w′, w′ voit w″, et w voit directement w″.", check:function(){
+        for(var i=0;i<state.edges.length;i++){
+          var a=state.edges[i][0], b=state.edges[i][1];
+          var succs = successorsOf(b);
+          for(var j=0;j<succs.length;j++){
+            if(hasEdge(a, succs[j])) return true;
+          }
+        }
+        return false;
+      }},
+    { id:'deadend', title:'Sans issue', desc:"Un monde sans aucun successeur — la vacuité en action.", check:function(){
+        return state.worlds.some(function(w){ return successorsOf(w.id).length===0; });
+      }},
+    { id:'serial', title:'Sérielle', desc:"Tous les mondes ont au moins un successeur.", check:function(){
+        return state.worlds.length>0 && state.worlds.every(function(w){ return successorsOf(w.id).length>0; });
+      }},
+    { id:'cycle', title:'Cycle', desc:"Une boucle d'au moins deux mondes distincts.", check:function(){
+        function hasCycleFrom(startId){
+          function dfs(id, visited){
+            var succs = successorsOf(id).filter(function(s){ return s!==id; });
+            for(var i=0;i<succs.length;i++){
+              if(succs[i]===startId) return true;
+              if(visited.indexOf(succs[i])===-1 && dfs(succs[i], visited.concat([succs[i]]))) return true;
+            }
+            return false;
+          }
+          return dfs(startId, [startId]);
+        }
+        return state.worlds.some(function(w){ return hasCycleFrom(w.id); });
+      }},
+    { id:'network', title:'Grand réseau', desc:"Huit mondes ou plus dans un même modèle.", check:function(){
+        return state.worlds.length >= 8;
+      }}
+  ];
+
+  function checkAchievements(){
+    var changed = false;
+    ACHIEVEMENTS.forEach(function(a){
+      if(state.unlocked.indexOf(a.id)===-1 && a.check()){
+        state.unlocked.push(a.id);
+        changed = true;
+      }
+    });
+    if(changed) persist();
+  }
+
+  function renderGallery(){
+    galleryGrid.innerHTML = '';
+    galleryCounter.textContent = state.unlocked.length + ' / ' + ACHIEVEMENTS.length;
+    ACHIEVEMENTS.forEach(function(a){
+      var unlocked = state.unlocked.indexOf(a.id) !== -1;
+      var card = document.createElement('div');
+      card.className = 'gallery-card' + (unlocked ? ' unlocked' : '');
+      var badge = document.createElement('div');
+      badge.className = 'gallery-badge';
+      badge.textContent = unlocked ? '✓' : '?';
+      var text = document.createElement('div');
+      text.className = 'gallery-text';
+      var head = document.createElement('div');
+      head.className = 'gallery-head';
+      var title = document.createElement('span');
+      title.className = 'gallery-title';
+      title.textContent = unlocked ? a.title : '???';
+      var status = document.createElement('span');
+      status.className = 'gallery-status';
+      status.textContent = unlocked ? 'débloqué' : 'verrouillé';
+      head.appendChild(title);
+      head.appendChild(status);
+      var desc = document.createElement('p');
+      desc.className = 'gallery-desc';
+      desc.textContent = unlocked ? a.desc : 'Construisez le modèle correspondant dans Mondes possibles pour révéler ce badge.';
+      text.appendChild(head);
+      text.appendChild(desc);
+      card.appendChild(badge);
+      card.appendChild(text);
+      galleryGrid.appendChild(card);
+    });
+  }
+
+  function buildCaptureSvgMarkup(){
+    var w = 400, h = 300;
+    var defs = '<defs><marker id="capArrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8d8c96"></path></marker></defs>';
+    var bg = '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="#121319"></rect>';
+    var edgesMarkup = state.edges.map(function(e){
+      var a = findWorld(e[0]), b = findWorld(e[1]);
+      if(!a || !b) return '';
+      var d = (e[0]===e[1]) ? loopPathD(a) : edgePathD(a,b);
+      return '<path d="'+d+'" fill="none" stroke="#8d8c96" stroke-width="1.6" opacity="0.65" marker-end="url(#capArrow)"></path>';
+    }).join('');
+    var worldsMarkup = state.worlds.map(function(wd){
+      var fill = '#191b22', stroke = '#8d8c96';
+      if(currentAst){
+        if(evalResults[wd.id]){ fill='rgba(79,143,230,0.3)'; stroke='#4f8fe6'; }
+        else { fill='rgba(209,113,90,0.22)'; stroke='#d1715a'; }
+      }
+      return '<circle cx="'+wd.x+'" cy="'+wd.y+'" r="'+RADIUS+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1.6"></circle>'+
+        '<text x="'+wd.x+'" y="'+wd.y+'" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono, monospace" font-size="12" fill="#ece9e2">w'+wd.id+'</text>';
+    }).join('');
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'">'+defs+bg+edgesMarkup+worldsMarkup+'</svg>';
+  }
+
+  function captureSnapshot(){
+    tryEvaluate();
+    var svgMarkup = buildCaptureSvgMarkup();
+    var svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgMarkup);
+    var formulaLabel = currentAst ? labelNode(currentAst) : (state.formula || '—');
+    var cap = {
+      id: 'cap' + Date.now(),
+      svg: svgDataUrl,
+      formula: formulaLabel,
+      worldCount: state.worlds.length,
+      ts: Date.now()
+    };
+    state.captures.unshift(cap);
+    if(state.captures.length > 24) state.captures.length = 24;
+    persist();
+    renderCaptureGrid();
+  }
+
+  function renderCaptureGrid(){
+    captureGrid.innerHTML = '';
+    if(state.captures.length===0){
+      var empty = document.createElement('p');
+      empty.className = 'gallery-empty';
+      empty.textContent = 'Aucune capture pour l’instant — dans l’onglet Mondes possibles, construisez un modèle puis touchez « Capturer dans la galerie ».';
+      captureGrid.appendChild(empty);
+      return;
+    }
+    state.captures.forEach(function(cap){
+      var card = document.createElement('div');
+      card.className = 'capture-card';
+      var img = document.createElement('img');
+      img.src = cap.svg;
+      img.alt = 'Modèle capturé';
+      var text = document.createElement('div');
+      text.className = 'capture-text';
+      var formula = document.createElement('div');
+      formula.className = 'capture-formula';
+      formula.textContent = cap.formula;
+      var meta = document.createElement('div');
+      meta.className = 'capture-meta';
+      var d = new Date(cap.ts);
+      meta.textContent = cap.worldCount + ' monde' + (cap.worldCount>1?'s':'') + ' · ' + d.toLocaleDateString('fr-FR');
+      text.appendChild(formula);
+      text.appendChild(meta);
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'capture-del';
+      del.textContent = '×';
+      del.setAttribute('aria-label','Supprimer cette capture');
+      del.addEventListener('click', function(){
+        state.captures = state.captures.filter(function(c){ return c.id!==cap.id; });
+        persist();
+        renderCaptureGrid();
+      });
+      card.appendChild(img);
+      card.appendChild(text);
+      card.appendChild(del);
+      captureGrid.appendChild(card);
+    });
+  }
+
+  /* ---------- formula parsing ---------- */
+
+  function ParseError(msg,pos){ this.message = msg; this.pos = pos; }
+
+  function tokenize(s){
+    var tokens = [], i = 0;
+    while(i < s.length){
+      var ch = s[i];
+      if(ch===' '||ch==='\t'||ch==='\n'){ i++; continue; }
+      if(ch==='¬'||ch==='~'||ch==='!'){ tokens.push({type:'NOT'}); i++; continue; }
+      if(ch==='∧'||ch==='&'){ tokens.push({type:'AND'}); i++; continue; }
+      if(ch==='∨'||ch==='|'){ tokens.push({type:'OR'}); i++; continue; }
+      if(ch==='□'){ tokens.push({type:'BOX'}); i++; continue; }
+      if(ch==='◇'){ tokens.push({type:'DIAMOND'}); i++; continue; }
+      if(ch==='→'){ tokens.push({type:'IMPLIES'}); i++; continue; }
+      if(ch==='↔'){ tokens.push({type:'IFF'}); i++; continue; }
+      if(ch==='('){ tokens.push({type:'LPAREN'}); i++; continue; }
+      if(ch===')'){ tokens.push({type:'RPAREN'}); i++; continue; }
+      if(ch==='['){
+        if(s[i+1]===']'){ tokens.push({type:'BOX'}); i+=2; continue; }
+        throw new ParseError('« [ » inattendu — utilisez « [] » pour le nécessaire', i);
+      }
+      if(ch==='<'){
+        if(s.substr(i,3)==='<->'){ tokens.push({type:'IFF'}); i+=3; continue; }
+        if(s.substr(i,2)==='<>'){ tokens.push({type:'DIAMOND'}); i+=2; continue; }
+        throw new ParseError('« < » inattendu', i);
+      }
+      if(ch==='-'){
+        if(s[i+1]==='>'){ tokens.push({type:'IMPLIES'}); i+=2; continue; }
+        throw new ParseError('« - » inattendu — utilisez « -> »', i);
+      }
+      if(/[a-zA-Z]/.test(ch)){
+        var j = i+1;
+        while(j<s.length && /[a-zA-Z0-9]/.test(s[j])) j++;
+        tokens.push({type:'ATOM', value:s.slice(i,j)});
+        i = j;
+        continue;
+      }
+      throw new ParseError('Caractère inattendu : « '+ch+' »', i);
+    }
+    tokens.push({type:'EOF'});
+    return tokens;
+  }
+
+  function parseTokens(tokens){
+    var pos = 0;
+    function peek(){ return tokens[pos]; }
+    function advance(){ return tokens[pos++]; }
+
+    function parseIff(){
+      var left = parseImplies();
+      while(peek().type==='IFF'){ advance(); left = {op:'iff', a:left, b:parseImplies()}; }
+      return left;
+    }
+    function parseImplies(){
+      var left = parseOr();
+      if(peek().type==='IMPLIES'){ advance(); return {op:'implies', a:left, b:parseImplies()}; }
+      return left;
+    }
+    function parseOr(){
+      var left = parseAnd();
+      while(peek().type==='OR'){ advance(); left = {op:'or', a:left, b:parseAnd()}; }
+      return left;
+    }
+    function parseAnd(){
+      var left = parseUnary();
+      while(peek().type==='AND'){ advance(); left = {op:'and', a:left, b:parseUnary()}; }
+      return left;
+    }
+    function parseUnary(){
+      var t = peek();
+      if(t.type==='NOT'){ advance(); return {op:'not', a:parseUnary()}; }
+      if(t.type==='BOX'){ advance(); return {op:'box', a:parseUnary()}; }
+      if(t.type==='DIAMOND'){ advance(); return {op:'diamond', a:parseUnary()}; }
+      return parseAtomOrParen();
+    }
+    function parseAtomOrParen(){
+      var t = peek();
+      if(t.type==='LPAREN'){
+        advance();
+        var e = parseIff();
+        if(peek().type!=='RPAREN') throw new ParseError('Parenthèse fermante manquante', pos);
+        advance();
+        return e;
+      }
+      if(t.type==='ATOM'){ advance(); return {op:'atom', name:t.value}; }
+      throw new ParseError('Formule incomplète', pos);
+    }
+
+    var result = parseIff();
+    if(peek().type!=='EOF') throw new ParseError('Symbole en trop après la formule', pos);
+    return result;
+  }
+
+  function parseFormula(str){
+    return parseTokens(tokenize(str));
+  }
+
+  function collectAtoms(node, into){
+    if(node.op==='atom'){ into.push(node.name); return; }
+    if(node.a) collectAtoms(node.a, into);
+    if(node.b) collectAtoms(node.b, into);
+  }
+
+  function evalFormula(node, worldId){
+    switch(node.op){
+      case 'atom': {
+        var v = state.valuation[worldId];
+        return !!(v && v[node.name]);
+      }
+      case 'not': return !evalFormula(node.a, worldId);
+      case 'and': return evalFormula(node.a, worldId) && evalFormula(node.b, worldId);
+      case 'or': return evalFormula(node.a, worldId) || evalFormula(node.b, worldId);
+      case 'implies': return !evalFormula(node.a, worldId) || evalFormula(node.b, worldId);
+      case 'iff': return evalFormula(node.a, worldId) === evalFormula(node.b, worldId);
+      case 'box': {
+        var succB = successorsOf(worldId);
+        return succB.every(function(w){ return evalFormula(node.a, w); });
+      }
+      case 'diamond': {
+        var succD = successorsOf(worldId);
+        return succD.some(function(w){ return evalFormula(node.a, w); });
+      }
+    }
+    return false;
+  }
+
+  /* ---------- explication en français ---------- */
+
+  function labelNode(node){
+    switch(node.op){
+      case 'atom': return node.name;
+      case 'not': return '¬' + wrapLabel(node.a);
+      case 'and': return wrapLabel(node.a) + ' ∧ ' + wrapLabel(node.b);
+      case 'or': return wrapLabel(node.a) + ' ∨ ' + wrapLabel(node.b);
+      case 'implies': return wrapLabel(node.a) + ' → ' + wrapLabel(node.b);
+      case 'iff': return wrapLabel(node.a) + ' ↔ ' + wrapLabel(node.b);
+      case 'box': return '□' + wrapLabel(node.a);
+      case 'diamond': return '◇' + wrapLabel(node.a);
+    }
+    return '?';
+  }
+  function wrapLabel(node){
+    return node.op==='atom' ? labelNode(node) : '(' + labelNode(node) + ')';
+  }
+  function vt(b){ return b ? 'vrai' : 'faux'; }
+
+  function clauseFor(node, worldId){
+    var v = evalFormula(node, worldId);
+    switch(node.op){
+      case 'atom':
+        return '« ' + node.name + ' » est ' + vt(v);
+      case 'not':
+        return '¬(' + labelNode(node.a) + ') est ' + vt(v) + ' car ' + clauseFor(node.a, worldId);
+      case 'and':
+        return '(' + labelNode(node.a) + ') ∧ (' + labelNode(node.b) + ') est ' + vt(v) + ' car ' + clauseFor(node.a, worldId) + ', et ' + clauseFor(node.b, worldId);
+      case 'or':
+        return '(' + labelNode(node.a) + ') ∨ (' + labelNode(node.b) + ') est ' + vt(v) + ' car ' + clauseFor(node.a, worldId) + ', et ' + clauseFor(node.b, worldId);
+      case 'implies': {
+        var av = evalFormula(node.a, worldId);
+        if(!av) return '(' + labelNode(node.a) + ') → (' + labelNode(node.b) + ') est vrai car ' + clauseFor(node.a, worldId) + ' — l’implication est donc automatiquement vraie';
+        return '(' + labelNode(node.a) + ') → (' + labelNode(node.b) + ') est ' + vt(v) + ' car ' + clauseFor(node.a, worldId) + ', et ' + clauseFor(node.b, worldId);
+      }
+      case 'iff':
+        return '(' + labelNode(node.a) + ') ↔ (' + labelNode(node.b) + ') est ' + vt(v) + ' car ' + clauseFor(node.a, worldId) + ', et ' + clauseFor(node.b, worldId);
+      case 'box': {
+        var succB = successorsOf(worldId);
+        if(succB.length===0) return '□(' + labelNode(node.a) + ') est vrai car ce monde n’a aucun successeur (vacuité)';
+        if(!v){
+          var failW = succB.filter(function(s){ return !evalFormula(node.a, s); })[0];
+          return '□(' + labelNode(node.a) + ') est faux car en w' + failW + ', ' + clauseFor(node.a, failW);
+        }
+        var okParts = succB.map(function(s){ return 'en w'+s+', '+clauseFor(node.a, s); });
+        return '□(' + labelNode(node.a) + ') est vrai car ' + okParts.join(' ; et ');
+      }
+      case 'diamond': {
+        var succD = successorsOf(worldId);
+        if(succD.length===0) return '◇(' + labelNode(node.a) + ') est faux car ce monde n’a aucun successeur';
+        if(v){
+          var witness = succD.filter(function(s){ return evalFormula(node.a, s); })[0];
+          return '◇(' + labelNode(node.a) + ') est vrai car en w' + witness + ', ' + clauseFor(node.a, witness);
+        }
+        var koParts = succD.map(function(s){ return 'en w'+s+', '+clauseFor(node.a, s); });
+        return '◇(' + labelNode(node.a) + ') est faux car ' + koParts.join(' ; et ');
+      }
+    }
+    return '';
+  }
+
+  function explainNode(node, worldId){
+    var v = evalFormula(node, worldId);
+    return labelNode(node) + ' est ' + vt(v) + ' en w' + worldId + ', car ' + clauseFor(node, worldId) + '.';
+  }
+
+  function renderTranslatePanel(){
+    if(!state.translate || !currentAst){
+      translatePanel.hidden = true;
+      translatePanel.innerHTML = '';
+      return;
+    }
+    translatePanel.hidden = false;
+    translatePanel.innerHTML = '';
+    state.worlds.forEach(function(w){
+      var row = document.createElement('p');
+      row.className = 'translate-row';
+      var strong = document.createElement('b');
+      strong.textContent = 'w' + w.id + ' — ';
+      row.appendChild(strong);
+      row.appendChild(document.createTextNode(explainNode(currentAst, w.id)));
+      translatePanel.appendChild(row);
+    });
+  }
+
+  /* ---------- SVG geometry ---------- */
+
+  function getSvgPoint(evt){
+    var pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    var ctm = svg.getScreenCTM();
+    if(!ctm) return {x:200,y:150};
+    var p = pt.matrixTransform(ctm.inverse());
+    return {x:p.x, y:p.y};
+  }
+
+  function trimmedLine(a,b){
+    var dx=b.x-a.x, dy=b.y-a.y;
+    var dist=Math.sqrt(dx*dx+dy*dy) || 1;
+    var ux=dx/dist, uy=dy/dist;
+    return {
+      sx:a.x+ux*RADIUS, sy:a.y+uy*RADIUS,
+      ex:b.x-ux*(RADIUS+6), ey:b.y-uy*(RADIUS+6)
+    };
+  }
+
+  function edgePathD(a,b){
+    var t = trimmedLine(a,b);
+    var mx=(t.sx+t.ex)/2, my=(t.sy+t.ey)/2;
+    var dx=t.ex-t.sx, dy=t.ey-t.sy;
+    var dist=Math.sqrt(dx*dx+dy*dy) || 1;
+    var px=-dy/dist, py=dx/dist;
+    var curve = 16;
+    var cx=mx+px*curve, cy=my+py*curve;
+    return 'M'+t.sx+','+t.sy+' Q'+cx+','+cy+' '+t.ex+','+t.ey;
+  }
+
+  function loopPathD(w){
+    var x0=w.x-9, y0=w.y-RADIUS;
+    var x1=w.x+9, y1=w.y-RADIUS;
+    var c1x=w.x-24, c1y=w.y-RADIUS-34;
+    var c2x=w.x+24, c2y=w.y-RADIUS-34;
+    return 'M'+x0+','+y0+' C'+c1x+','+c1y+' '+c2x+','+c2y+' '+x1+','+y1;
+  }
+
+  /* ---------- rendering ---------- */
+
+  var currentAst = null;
+  var evalResults = {};
+
+  function tryEvaluate(){
+    var text = (state.formula||'').trim();
+    evalResults = {};
+    currentAst = null;
+    if(!text){
+      formulaFeedback.textContent = 'Entrez une formule pour l’évaluer.';
+      formulaFeedback.classList.remove('error');
+      return;
+    }
+    try{
+      var ast = parseFormula(text);
+      var used = [];
+      collectAtoms(ast, used);
+      used.forEach(function(name){
+        if(state.atoms.indexOf(name)===-1){
+          state.atoms.push(name);
+          state.worlds.forEach(function(w){ ensureValuation(w.id); });
+        }
+      });
+      currentAst = ast;
+      state.worlds.forEach(function(w){
+        evalResults[w.id] = evalFormula(ast, w.id);
+      });
+      formulaFeedback.textContent = '';
+      formulaFeedback.classList.remove('error');
+    }catch(err){
+      formulaFeedback.textContent = (err && err.message) ? err.message : 'Formule invalide';
+      formulaFeedback.classList.add('error');
+    }
+  }
+
+  function render(){
+    tryEvaluate();
+
+    // edges
+    edgesLayer.innerHTML = '';
+    state.edges.forEach(function(e){
+      var a = findWorld(e[0]), b = findWorld(e[1]);
+      if(!a || !b) return;
+      var path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('marker-end','url(#arrow)');
+      if(e[0]===e[1]){
+        path.setAttribute('d', loopPathD(a));
+      } else {
+        path.setAttribute('d', edgePathD(a,b));
+      }
+      path.setAttribute('class','edge-path');
+      var g = document.createElementNS('http://www.w3.org/2000/svg','g');
+      g.setAttribute('class','edge');
+      g.appendChild(path);
+      edgesLayer.appendChild(g);
+    });
+
+    // worlds
+    worldsLayer.innerHTML = '';
+    var trueCount = 0;
+    state.worlds.forEach(function(w){
+      ensureValuation(w.id);
+      var g = document.createElementNS('http://www.w3.org/2000/svg','g');
+      var cls = 'world';
+      if(state.active===w.id) cls += ' active';
+      if(currentAst){
+        if(evalResults[w.id]){ cls += ' evalTrue'; trueCount++; }
+        else cls += ' evalFalse';
+      }
+      g.setAttribute('class', cls);
+      g.setAttribute('tabindex','0');
+      g.setAttribute('role','button');
+      var label = 'monde w'+w.id;
+      if(currentAst) label += evalResults[w.id] ? ', formule vraie' : ', formule fausse';
+      g.setAttribute('aria-label', label);
+      g.dataset.id = w.id;
+
+      var circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circle.setAttribute('cx', w.x);
+      circle.setAttribute('cy', w.y);
+      circle.setAttribute('r', RADIUS);
+      g.appendChild(circle);
+
+      var text = document.createElementNS('http://www.w3.org/2000/svg','text');
+      text.setAttribute('x', w.x);
+      text.setAttribute('y', w.y);
+      text.textContent = 'w'+w.id;
+      g.appendChild(text);
+
+      worldsLayer.appendChild(g);
+    });
+
+    // counter chip
+    if(currentAst){
+      counterEl.textContent = trueCount + ' / ' + state.worlds.length;
+    } else {
+      counterEl.textContent = '— / ' + state.worlds.length;
+    }
+
+    // status
+    if(state.active){
+      statusEl.textContent = 'Monde w'+state.active+' sélectionné — touchez un autre monde pour créer ou retirer une flèche, ou glissez pour déplacer.';
+    } else {
+      statusEl.textContent = 'Touchez un monde pour le sélectionner, ou une zone vide pour en créer un.';
+    }
+
+    renderAtomsPanel();
+    renderSymbolsRow();
+    checkAchievements();
+    renderTranslatePanel();
+    translateToggle.classList.toggle('on', state.translate);
+    translateToggle.setAttribute('aria-pressed', state.translate ? 'true' : 'false');
+
+    if(formulaInput.value !== state.formula) formulaInput.value = state.formula;
+  }
+
+  function renderAtomsPanel(){
+    if(!state.active){
+      atomsPanel.hidden = true;
+      return;
+    }
+    atomsPanel.hidden = false;
+    ensureValuation(state.active);
+    atomsRow.innerHTML = '';
+    state.atoms.forEach(function(name){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      var val = !!state.valuation[state.active][name];
+      btn.className = 'atom-chip' + (val ? ' true' : '');
+      btn.textContent = name + ' : ' + (val ? 'vrai' : 'faux');
+      btn.addEventListener('click', function(){
+        state.valuation[state.active][name] = !state.valuation[state.active][name];
+        persist();
+        render();
+      });
+      atomsRow.appendChild(btn);
+    });
+
+    var loop = hasEdge(state.active, state.active);
+    loopBtn.textContent = loop ? 'Retirer la boucle réflexive' : 'Ajouter une boucle réflexive';
+  }
+
+  function renderSymbolsRow(){
+    symbolsRow.innerHTML = '';
+    var symbols = ['¬','∧','∨','→','↔','□','◇','(',')'];
+    symbols.forEach(function(sym){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'sym-btn';
+      b.textContent = sym;
+      b.addEventListener('click', function(){ insertAtCursor(sym); });
+      symbolsRow.appendChild(b);
+    });
+    state.atoms.forEach(function(name){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'sym-btn atom';
+      b.textContent = name;
+      b.addEventListener('click', function(){ insertAtCursor(name); });
+      symbolsRow.appendChild(b);
+    });
+  }
+
+  function insertAtCursor(text){
+    var start = formulaInput.selectionStart || formulaInput.value.length;
+    var end = formulaInput.selectionEnd || formulaInput.value.length;
+    var val = formulaInput.value;
+    formulaInput.value = val.slice(0,start) + text + val.slice(end);
+    var newPos = start + text.length;
+    formulaInput.focus();
+    formulaInput.setSelectionRange(newPos, newPos);
+    state.formula = formulaInput.value;
+    persist();
+    render();
+  }
+
+  /* ---------- interaction ---------- */
+
+  function addWorld(x,y){
+    var id = state.nextId++;
+    state.worlds.push({id:id, x:x, y:y});
+    ensureValuation(id);
+    state.active = id;
+    persist();
+    render();
+  }
+
+  function deleteActiveWorld(){
+    if(!state.active) return;
+    var id = state.active;
+    state.worlds = state.worlds.filter(function(w){ return w.id!==id; });
+    state.edges = state.edges.filter(function(e){ return e[0]!==id && e[1]!==id; });
+    delete state.valuation[id];
+    state.active = null;
+    persist();
+    render();
+  }
+
+  function onWorldTap(id){
+    if(state.active===null){
+      state.active = id;
+    } else if(state.active===id){
+      state.active = null;
+    } else {
+      toggleEdge(state.active, id);
+    }
+    persist();
+    render();
+  }
+
+  var drag = null;
+
+  worldsLayer.addEventListener('pointerdown', function(e){
+    var g = e.target.closest('.world');
+    if(!g) return;
+    var id = +g.dataset.id;
+    var p = getSvgPoint(e);
+    var w = findWorld(id);
+    drag = { id:id, moved:false, offX:p.x-w.x, offY:p.y-w.y, pointerId:e.pointerId };
+    try{ g.setPointerCapture(e.pointerId); }catch(err){}
+  });
+
+  worldsLayer.addEventListener('pointermove', function(e){
+    if(!drag || drag.pointerId!==e.pointerId) return;
+    var p = getSvgPoint(e);
+    var w = findWorld(drag.id);
+    if(!w) return;
+    var nx = p.x - drag.offX, ny = p.y - drag.offY;
+    if(Math.abs(nx-w.x) > 2 || Math.abs(ny-w.y) > 2) drag.moved = true;
+    w.x = Math.max(RADIUS, Math.min(400-RADIUS, nx));
+    w.y = Math.max(RADIUS, Math.min(300-RADIUS, ny));
+    render();
+  });
+
+  function endDrag(e){
+    if(!drag || drag.pointerId!==e.pointerId) return;
+    var id = drag.id, moved = drag.moved;
+    drag = null;
+    if(!moved){
+      onWorldTap(id);
+    } else {
+      persist();
+    }
+  }
+  worldsLayer.addEventListener('pointerup', endDrag);
+  worldsLayer.addEventListener('pointercancel', endDrag);
+
+  worldsLayer.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' && e.key!==' ') return;
+    var g = e.target.closest('.world');
+    if(!g) return;
+    e.preventDefault();
+    onWorldTap(+g.dataset.id);
+  });
+
+  bgRect.addEventListener('click', function(e){
+    if(drag) return;
+    var p = getSvgPoint(e);
+    addWorld(
+      Math.max(RADIUS, Math.min(400-RADIUS, p.x)),
+      Math.max(RADIUS, Math.min(300-RADIUS, p.y))
+    );
+  });
+
+  loopBtn.addEventListener('click', function(){
+    if(!state.active) return;
+    toggleEdge(state.active, state.active);
+    persist();
+    render();
+  });
+
+  deleteWorldBtn.addEventListener('click', deleteActiveWorld);
+
+  formulaInput.addEventListener('input', function(){
+    state.formula = formulaInput.value;
+    persist();
+    render();
+  });
+
+  resetBtn.addEventListener('click', function(){
+    var keepUnlocked = state.unlocked;
+    var keepCaptures = state.captures;
+    state = defaultState();
+    state.unlocked = keepUnlocked;
+    state.captures = keepCaptures;
+    persist();
+    render();
+  });
+
+  translateToggle.addEventListener('click', function(){
+    state.translate = !state.translate;
+    persist();
+    render();
+  });
+
+  captureBtn.addEventListener('click', captureSnapshot);
+
+  var tabIntroBtn = document.getElementById('tabIntroBtn');
+  var tabToolBtn = document.getElementById('tabToolBtn');
+  var tabGalleryBtn = document.getElementById('tabGalleryBtn');
+  var panelIntro = document.getElementById('panelIntro');
+  var panelTool = document.getElementById('panelTool');
+  var panelGallery = document.getElementById('panelGallery');
+
+  function showTab(name){
+    panelIntro.hidden = name!=='intro';
+    panelTool.hidden = name!=='tool';
+    panelGallery.hidden = name!=='gallery';
+    tabIntroBtn.classList.toggle('active', name==='intro');
+    tabToolBtn.classList.toggle('active', name==='tool');
+    tabGalleryBtn.classList.toggle('active', name==='gallery');
+    tabIntroBtn.setAttribute('aria-selected', name==='intro' ? 'true' : 'false');
+    tabToolBtn.setAttribute('aria-selected', name==='tool' ? 'true' : 'false');
+    tabGalleryBtn.setAttribute('aria-selected', name==='gallery' ? 'true' : 'false');
+    if(name==='gallery'){ renderGallery(); renderCaptureGrid(); }
+  }
+  tabIntroBtn.addEventListener('click', function(){ showTab('intro'); });
+  tabToolBtn.addEventListener('click', function(){ showTab('tool'); });
+  tabGalleryBtn.addEventListener('click', function(){ showTab('gallery'); });
+
+  /* ---------- boot ---------- */
+
+  function getSnapshotSafe(){ return state; }
+
+  function start(initialData){
+    state = (initialData && Array.isArray(initialData.worlds)) ? sanitize(initialData) : loadFromStorageOrFresh();
+    render();
+  }
+
+  if(window.claude && window.claude.hot && window.claude.hot.snapshot){
+    window.claude.hot.snapshot(getSnapshotSafe);
+  }
+  if(window.claude && window.claude.hot && window.claude.hot.ready){
+    window.claude.hot.ready(start);
+  } else {
+    start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+  }
+})();
+</script>
