@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Logipédia</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20512%20512%22%3E%0A%20%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22108%22%20fill%3D%22%230b0c10%22/%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3Cmarker%20id%3D%22logoArrow%22%20viewBox%3D%220%200%2010%2010%22%20refX%3D%228.5%22%20refY%3D%225%22%20markerWidth%3D%228%22%20markerHeight%3D%228%22%20orient%3D%22auto-start-reverse%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M0%2C0%20L10%2C5%20L0%2C10%20z%22%20fill%3D%22%236b6a74%22/%3E%0A%20%20%20%20%3C/marker%3E%0A%20%20%3C/defs%3E%0A%20%20%3Cpath%20d%3D%22M222%2C254%20Q252%2C204%20284%2C254%22%20fill%3D%22none%22%20stroke%3D%22%236b6a74%22%20stroke-width%3D%229%22%20marker-end%3D%22url%28%23logoArrow%29%22/%3E%0A%20%20%3Ccircle%20cx%3D%22150%22%20cy%3D%22256%22%20r%3D%2270%22%20fill%3D%22%2315161d%22%20stroke%3D%22%236b6a74%22%20stroke-width%3D%229%22/%3E%0A%20%20%3Ccircle%20cx%3D%22362%22%20cy%3D%22256%22%20r%3D%2270%22%20fill%3D%22rgba%2879%2C143%2C230%2C0.32%29%22%20stroke%3D%22%234f8fe6%22%20stroke-width%3D%229%22/%3E%0A%3C/svg%3E%0A">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
   /* Layout: title, status, an SVG graph of possible worlds (drag to move,
@@ -195,9 +197,8 @@
   }
   .symbols-row{
     display:flex;
+    flex-wrap:wrap;
     gap:6px;
-    overflow-x:auto;
-    padding-bottom:2px;
   }
   .sym-btn{
     flex:none;
@@ -212,6 +213,9 @@
     cursor:pointer;
   }
   .sym-btn.atom{ color:var(--accent); }
+  .sym-btn.wide{ width:auto; padding:0 11px; font-family:'IBM Plex Sans',sans-serif; font-size:0.78rem; white-space:nowrap; }
+  .sym-btn.prop-add{ color:var(--accent); border-color:rgba(var(--accent-rgb),.4); }
+  .sym-btn.prop-del{ color:var(--warn); border-color:rgba(var(--warn-rgb),.35); }
   #formulaInput{
     width:100%;
     font-family:'IBM Plex Mono',monospace;
@@ -462,6 +466,56 @@
     .demo-edge{ stroke:var(--accent); opacity:1; }
   }
 
+  marker#arrow-ax1 path, marker#arrow-ax2 path{ fill:var(--fg-dim); }
+  .ax-trans-shortcut{
+    fill:none;
+    stroke:var(--accent);
+    stroke-width:1.8;
+    stroke-dasharray:5 4;
+    opacity:0;
+    animation:axTransShortcut 5s ease-in-out infinite;
+  }
+  .ax-trans-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    fill:var(--accent);
+    text-anchor:middle;
+    opacity:0;
+    animation:axTransShortcut 5s ease-in-out infinite;
+  }
+  @keyframes axTransShortcut{
+    0%,35%{ opacity:0; }
+    50%,85%{ opacity:1; }
+    97%,100%{ opacity:0; }
+  }
+  .ax-gl-pulse{
+    fill:var(--accent);
+    opacity:0;
+    transform-box:fill-box;
+    transform-origin:center;
+    animation:axGlPulse 4.5s ease-in-out infinite;
+  }
+  @keyframes axGlPulse{
+    0%{ transform:translateY(0); opacity:0; }
+    8%{ opacity:1; }
+    30%{ transform:translateY(-60px); }
+    55%{ transform:translateY(-120px); }
+    78%{ transform:translateY(-180px); opacity:1; }
+    90%,100%{ transform:translateY(-180px); opacity:0; }
+  }
+  .ax-gl-forbidden-loop{ fill:none; stroke:var(--warn); stroke-width:1.6; stroke-dasharray:3 3; opacity:.75; }
+  .ax-gl-cross{ stroke:var(--warn); stroke-width:1.8; stroke-linecap:round; }
+  .ax-gl-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    fill:var(--warn);
+    text-anchor:middle;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .ax-trans-shortcut, .ax-trans-label{ animation:none; opacity:1; }
+    .ax-gl-pulse{ animation:none; opacity:1; transform:translateY(-180px); }
+  }
+
   .chip-btn.on{
     color:var(--accent);
     border-color:rgba(var(--accent-rgb),.4);
@@ -556,6 +610,18 @@
     color:var(--fg-dim);
     line-height:1.5;
   }
+  .gallery-axiom{
+    margin:4px 0 0;
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.72rem;
+    color:var(--accent);
+    background:rgba(var(--accent-rgb),.12);
+    border:1px solid rgba(var(--accent-rgb),.3);
+    border-radius:999px;
+    padding:2px 9px;
+    width:fit-content;
+  }
   .gallery-empty{
     margin:0;
     font-size:0.85rem;
@@ -616,6 +682,40 @@
     font-size:0.9rem;
     line-height:1;
   }
+  .capture-item{ display:flex; flex-direction:column; }
+  .capture-card{ cursor:pointer; }
+  .capture-card:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .capture-details{
+    margin-top:6px;
+    padding:10px 12px 12px;
+    border-radius:12px;
+    background:var(--panel-2);
+    border:1px solid rgba(255,255,255,.06);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .capture-details h4{
+    margin:0 0 6px;
+    font:600 0.7rem 'IBM Plex Sans',sans-serif;
+    color:var(--fg-dim);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  .capture-details p{ margin:0; font-size:0.8rem; color:var(--fg-dim); line-height:1.5; }
+  .capture-value-row{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:6px; }
+  .capture-value-row:last-child{ margin-bottom:0; }
+  .capture-value-chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.72rem;
+    padding:3px 9px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:var(--panel);
+    color:var(--fg-dim);
+  }
+  .capture-value-chip.world{ color:var(--fg); border-color:rgba(255,255,255,.2); }
+  .capture-value-chip.true{ color:var(--accent); border-color:rgba(var(--accent-rgb),.4); }
 </style>
 </head>
 <body>
@@ -671,6 +771,85 @@
         <div><dt>Euclidienne</dt><dd>si w voit w' et w voit w'', alors w' voit w'' aussi. Axiome associé : <code>◇p → □◇p</code>.</dd></div>
       </dl>
       <p>Un modèle sans aucune de ces propriétés reste parfaitement valide : c'est la logique <b>K</b>, la plus générale de toutes. Ajouter la réflexivité donne la logique <b>T</b>, ajouter en plus la transitivité donne <b>S4</b>, et réflexivité + symétrie + transitivité ensemble donnent <b>S5</b>, où tous les mondes accessibles finissent par se voir mutuellement.</p>
+
+      <h2>Les axiomes de la logique modale</h2>
+      <p>Un axiome, ici, est un schéma de formule qu'on ajoute au système minimal <b>K</b> — celui qui ne suppose aucune condition sur la relation d'accessibilité. Chaque axiome qu'on ajoute impose une condition précise sur cette relation : c'est ce qu'on vient de voir, propriété par propriété. Reprenons-les du point de vue de l'axiome lui-même, avant d'aller voir des axiomes plus rares.</p>
+      <dl class="connectors">
+        <div><dt>K</dt><dd>□(p→q) → (□p→□q) — valable dans absolument tous les modèles, sans aucune condition sur la relation : le socle commun à toute logique modale normale.</dd></div>
+        <div><dt>T</dt><dd>□p → p — correspond à la réflexivité.</dd></div>
+        <div><dt>D</dt><dd>□p → ◇p — correspond à la sérialité.</dd></div>
+        <div><dt>B</dt><dd>p → □◇p — correspond à la symétrie.</dd></div>
+        <div><dt>4</dt><dd>□p → □□p — correspond à la transitivité.</dd></div>
+        <div><dt>5</dt><dd>◇p → □◇p — correspond à la propriété euclidienne.</dd></div>
+      </dl>
+
+      <div class="demo">
+        <svg viewBox="0 0 320 150" class="demo-svg" aria-hidden="true">
+          <defs>
+            <marker id="arrow-ax1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z"></path>
+            </marker>
+          </defs>
+          <path class="demo-edge" d="M85,82 Q130,42 155,45" marker-end="url(#arrow-ax1)"></path>
+          <path class="demo-edge" d="M185,45 Q225,52 245,82" marker-end="url(#arrow-ax1)"></path>
+          <path class="ax-trans-shortcut" d="M80,102 Q170,135 250,102" marker-end="url(#arrow-ax1)"></path>
+          <text class="ax-trans-label" x="165" y="144">forcée par l'axiome 4</text>
+          <circle cx="60" cy="95" r="28"></circle>
+          <circle cx="170" cy="32" r="28"></circle>
+          <circle cx="280" cy="95" r="28"></circle>
+          <text class="demo-name" x="60" y="99">w</text>
+          <text class="demo-name" x="170" y="36">w'</text>
+          <text class="demo-name" x="280" y="99">w''</text>
+        </svg>
+        <p class="demo-caption">w voit w′, et w′ voit w″ : l'axiome 4 force une flèche directe de w vers w″, sans étape intermédiaire. Sans elle, la relation ne serait pas transitive.</p>
+      </div>
+
+      <h2>Des systèmes qui empilent les axiomes</h2>
+      <p>En combinant ces axiomes sur <b>K</b>, on obtient des systèmes logiques complets, chacun pensé pour un usage différent :</p>
+      <dl class="connectors">
+        <div><dt>K</dt><dd>le socle seul — utile en théorie, trop faible pour modéliser grand-chose de précis.</dd></div>
+        <div><dt>T</dt><dd>K + réflexivité : ce qui est nécessaire est vrai ici et maintenant.</dd></div>
+        <div><dt>S4</dt><dd>K + T + 4 (réflexif, transitif) — le système de la connaissance et de la démonstration mathématique : ce que je sais, je sais que je le sais.</dd></div>
+        <div><dt>S5</dt><dd>K + T + 5, équivalent à K + T + B + 4 — la relation devient une relation d'équivalence, tous les mondes accessibles se voient mutuellement. Le système standard pour modéliser la connaissance d'un agent idéal.</dd></div>
+        <div><dt>KD45</dt><dd>D + 4 + 5, sans réflexivité — le système classique pour modéliser la croyance : on peut croire des choses fausses, mais de façon cohérente, et on sait ce qu'on croit.</dd></div>
+      </dl>
+
+      <h2>Des axiomes plus exotiques</h2>
+      <p>Au-delà de ces cinq-là, d'autres axiomes ciblent des usages plus spécialisés, avec des conditions sur la relation parfois surprenantes :</p>
+      <dl class="connectors">
+        <div><dt>GL</dt><dd>(Gödel-Löb) □(□p→p) → □p — correspond à une relation transitive et sans chaîne ascendante infinie : jamais de boucle, donc pas réflexive, et toujours fini par s'arrêter en avançant. C'est l'axiome de la <b>prouvabilité</b> : il formalise ce qu'un système comme l'arithmétique de Peano peut démontrer sur ses propres démonstrations, via le second théorème d'incomplétude de Gödel.</dd></div>
+        <div><dt>Grz</dt><dd>(Grzegorczyk) □(□(p→□p)→p) → p — réflexive, transitive, et sans chaîne strictement croissante infinie de mondes distincts. Une variante de S4 qui interdit de progresser indéfiniment sans jamais rebrousser chemin.</dd></div>
+        <div><dt>Triv</dt><dd>p ↔ □p — chaque monde ne voit que lui-même : la relation est l'identité pure. « Nécessaire » et « vrai » deviennent alors exactement la même chose.</dd></div>
+        <div><dt>Ver</dt><dd>□⊥ — aucun monde n'a de successeur : la relation est vide. □p devient vrai pour toute proposition p par pure vacuité, et ◇p toujours faux — on avait déjà croisé ce cas plus haut.</dd></div>
+        <div><dt>.2</dt><dd>(confluence) correspond à : si deux chemins divergent depuis un même monde, ils peuvent toujours se rejoindre plus loin. Utile pour raisonner sur des branchements qui finissent par converger.</dd></div>
+        <div><dt>.3</dt><dd>(connexité) correspond à : les successeurs d'un même monde sont toujours comparables — l'un voit l'autre, ou l'inverse, jamais de branche indépendante. Utile pour modéliser un temps linéaire, où le futur ne se divise jamais.</dd></div>
+      </dl>
+
+      <div class="demo">
+        <svg viewBox="0 0 170 300" class="demo-svg" aria-hidden="true">
+          <defs>
+            <marker id="arrow-ax2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z"></path>
+            </marker>
+          </defs>
+          <path class="demo-edge" d="M85,226 L85,214" marker-end="url(#arrow-ax2)"></path>
+          <path class="demo-edge" d="M85,166 L85,154" marker-end="url(#arrow-ax2)"></path>
+          <path class="demo-edge" d="M85,106 L85,94" marker-end="url(#arrow-ax2)"></path>
+          <path class="ax-gl-forbidden-loop" d="M71,52 Q85,22 99,52"></path>
+          <path class="ax-gl-cross" d="M78,38 L92,52 M92,38 L78,52"></path>
+          <text class="ax-gl-label" x="85" y="15">interdite</text>
+          <circle class="ax-gl-pulse" cx="85" cy="250" r="5"></circle>
+          <circle cx="85" cy="250" r="24"></circle>
+          <circle cx="85" cy="190" r="24"></circle>
+          <circle cx="85" cy="130" r="24"></circle>
+          <circle cx="85" cy="70" r="24"></circle>
+          <text class="demo-name" x="85" y="254">w₁</text>
+          <text class="demo-name" x="85" y="194">w₂</text>
+          <text class="demo-name" x="85" y="134">w₃</text>
+          <text class="demo-name" x="85" y="74">w₄</text>
+        </svg>
+        <p class="demo-caption">Un cadre GL : on avance toujours d'un monde au suivant, jamais de boucle (même pas réflexive — elle est « interdite » sur ce schéma), et jamais de chaîne qui grimpe indéfiniment. L'axiome ◻p s'y lit « p est démontrable ».</p>
+      </div>
 
       <h2>Un exemple concret</h2>
       <p>Deux mondes, une proposition « il pleut », et une flèche qui dit que, depuis aujourd'hui, demain est envisageable.</p>
@@ -737,7 +916,7 @@
 
     <div class="formula-bar">
       <div class="symbols-row" id="symbolsRow"></div>
-      <input type="text" id="formulaInput" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ex. <>p ou ◇p">
+      <input type="text" id="formulaInput" inputmode="none" autocomplete="off" autocapitalize="off" spellcheck="false" readonly placeholder="ex. <>p ou ◇p">
       <p class="formula-feedback" id="formulaFeedback"></p>
     </div>
 
@@ -812,7 +991,6 @@
   function defaultState(){
     return {
       worlds: [],
-      nextId: 1,
       edges: [],
       atoms: ['p','q'],
       valuation: {},
@@ -828,7 +1006,6 @@
     if(!d || !Array.isArray(d.worlds)) return defaultState();
     return {
       worlds: d.worlds.map(function(w){ return {id:w.id,x:w.x,y:w.y}; }),
-      nextId: d.nextId || (d.worlds.length+1),
       edges: Array.isArray(d.edges) ? d.edges.slice() : [],
       atoms: Array.isArray(d.atoms) ? d.atoms.slice() : ['p'],
       valuation: d.valuation || {},
@@ -862,6 +1039,12 @@
     return null;
   }
 
+  function nextWorldId(){
+    var id = 1;
+    while(state.worlds.some(function(w){ return w.id===id; })) id++;
+    return id;
+  }
+
   function successorsOf(id){
     return state.edges.filter(function(e){ return e[0]===id; }).map(function(e){ return e[1]; });
   }
@@ -888,13 +1071,13 @@
   /* ---------- achievements (frame properties) ---------- */
 
   var ACHIEVEMENTS = [
-    { id:'reflexive', title:'Réflexif', desc:"Un monde qui se voit lui-même : une boucle vers soi.", check:function(){
+    { id:'reflexive', title:'Réflexif', desc:"Un monde qui se voit lui-même : une boucle vers soi.", axiom:'T', axiomFormula:'◻p → p', check:function(){
         return state.edges.some(function(e){ return e[0]===e[1]; });
       }},
-    { id:'symmetric', title:'Symétrique', desc:"Deux mondes qui se voient mutuellement.", check:function(){
+    { id:'symmetric', title:'Symétrique', desc:"Deux mondes qui se voient mutuellement.", axiom:'B', axiomFormula:'p → ◻◇p', check:function(){
         return state.edges.some(function(e){ return e[0]!==e[1] && hasEdge(e[1], e[0]); });
       }},
-    { id:'transitive', title:'Transitif', desc:"w voit w′, w′ voit w″, et w voit directement w″.", check:function(){
+    { id:'transitive', title:'Transitif', desc:"w voit w′, w′ voit w″, et w voit directement w″.", axiom:'4', axiomFormula:'◻p → ◻◻p', check:function(){
         for(var i=0;i<state.edges.length;i++){
           var a=state.edges[i][0], b=state.edges[i][1];
           var succs = successorsOf(b);
@@ -904,10 +1087,21 @@
         }
         return false;
       }},
+    { id:'euclidean', title:'Euclidienne', desc:"w voit w′ et w″ : alors w′ voit aussi w″.", axiom:'5', axiomFormula:'◇p → ◻◇p', check:function(){
+        for(var i=0;i<state.worlds.length;i++){
+          var succs = successorsOf(state.worlds[i].id);
+          for(var j=0;j<succs.length;j++){
+            for(var k=0;k<succs.length;k++){
+              if(j!==k && hasEdge(succs[j], succs[k])) return true;
+            }
+          }
+        }
+        return false;
+      }},
     { id:'deadend', title:'Sans issue', desc:"Un monde sans aucun successeur — la vacuité en action.", check:function(){
         return state.worlds.some(function(w){ return successorsOf(w.id).length===0; });
       }},
-    { id:'serial', title:'Sérielle', desc:"Tous les mondes ont au moins un successeur.", check:function(){
+    { id:'serial', title:'Sérielle', desc:"Tous les mondes ont au moins un successeur.", axiom:'D', axiomFormula:'◻p → ◇p', check:function(){
         return state.worlds.length>0 && state.worlds.every(function(w){ return successorsOf(w.id).length>0; });
       }},
     { id:'cycle', title:'Cycle', desc:"Une boucle d'au moins deux mondes distincts.", check:function(){
@@ -967,6 +1161,12 @@
       desc.textContent = unlocked ? a.desc : 'Construisez le modèle correspondant dans Mondes possibles pour révéler ce badge.';
       text.appendChild(head);
       text.appendChild(desc);
+      if(unlocked && a.axiom){
+        var axiomTag = document.createElement('p');
+        axiomTag.className = 'gallery-axiom';
+        axiomTag.textContent = 'Axiome ' + a.axiom + ' — ' + a.axiomFormula;
+        text.appendChild(axiomTag);
+      }
       card.appendChild(badge);
       card.appendChild(text);
       galleryGrid.appendChild(card);
@@ -1000,11 +1200,24 @@
     var svgMarkup = buildCaptureSvgMarkup();
     var svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgMarkup);
     var formulaLabel = currentAst ? labelNode(currentAst) : (state.formula || '—');
+    var worldsSnapshot = state.worlds.map(function(w){
+      var values = {};
+      state.atoms.forEach(function(name){
+        values[name] = !!(state.valuation[w.id] && state.valuation[w.id][name]);
+      });
+      return { id:w.id, values:values, result: currentAst ? !!evalResults[w.id] : null };
+    });
+    var translationSnapshot = currentAst ? state.worlds.map(function(w){
+      return { id:w.id, text: explainNode(currentAst, w.id) };
+    }) : [];
     var cap = {
       id: 'cap' + Date.now(),
       svg: svgDataUrl,
       formula: formulaLabel,
       worldCount: state.worlds.length,
+      atoms: state.atoms.slice(),
+      worlds: worldsSnapshot,
+      translation: translationSnapshot,
       ts: Date.now()
     };
     state.captures.unshift(cap);
@@ -1012,6 +1225,8 @@
     persist();
     renderCaptureGrid();
   }
+
+  var expandedCaptures = {};
 
   function renderCaptureGrid(){
     captureGrid.innerHTML = '';
@@ -1023,8 +1238,15 @@
       return;
     }
     state.captures.forEach(function(cap){
+      var isOpen = !!expandedCaptures[cap.id];
+      var item = document.createElement('div');
+      item.className = 'capture-item';
+
       var card = document.createElement('div');
       card.className = 'capture-card';
+      card.setAttribute('role','button');
+      card.setAttribute('tabindex','0');
+      card.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       var img = document.createElement('img');
       img.src = cap.svg;
       img.alt = 'Modèle capturé';
@@ -1036,7 +1258,7 @@
       var meta = document.createElement('div');
       meta.className = 'capture-meta';
       var d = new Date(cap.ts);
-      meta.textContent = cap.worldCount + ' monde' + (cap.worldCount>1?'s':'') + ' · ' + d.toLocaleDateString('fr-FR');
+      meta.textContent = cap.worldCount + ' monde' + (cap.worldCount>1?'s':'') + ' · ' + d.toLocaleDateString('fr-FR') + ' · ' + (isOpen ? 'masquer les détails' : 'afficher les détails');
       text.appendChild(formula);
       text.appendChild(meta);
       var del = document.createElement('button');
@@ -1044,15 +1266,83 @@
       del.className = 'capture-del';
       del.textContent = '×';
       del.setAttribute('aria-label','Supprimer cette capture');
-      del.addEventListener('click', function(){
+      del.addEventListener('click', function(ev){
+        ev.stopPropagation();
         state.captures = state.captures.filter(function(c){ return c.id!==cap.id; });
+        delete expandedCaptures[cap.id];
         persist();
         renderCaptureGrid();
       });
       card.appendChild(img);
       card.appendChild(text);
       card.appendChild(del);
-      captureGrid.appendChild(card);
+      function toggleCapture(){
+        expandedCaptures[cap.id] = !expandedCaptures[cap.id];
+        renderCaptureGrid();
+      }
+      card.addEventListener('click', toggleCapture);
+      card.addEventListener('keydown', function(ev){
+        if(ev.key==='Enter' || ev.key===' '){ ev.preventDefault(); toggleCapture(); }
+      });
+      item.appendChild(card);
+
+      if(isOpen){
+        var details = document.createElement('div');
+        details.className = 'capture-details';
+
+        var valuesGroup = document.createElement('div');
+        var valuesTitle = document.createElement('h4');
+        valuesTitle.textContent = 'Valeurs par monde';
+        valuesGroup.appendChild(valuesTitle);
+        if(!cap.worlds || cap.worlds.length===0){
+          var noW = document.createElement('p');
+          noW.textContent = 'Aucun monde dans cette capture.';
+          valuesGroup.appendChild(noW);
+        } else {
+          cap.worlds.forEach(function(w){
+            var row = document.createElement('div');
+            row.className = 'capture-value-row';
+            var lab = document.createElement('span');
+            lab.className = 'capture-value-chip world';
+            var mark = (w.result===null || w.result===undefined) ? '' : (w.result ? ' ✓' : ' ✕');
+            lab.textContent = 'w' + w.id + mark;
+            row.appendChild(lab);
+            (cap.atoms||[]).forEach(function(name){
+              var chip = document.createElement('span');
+              var val = !!w.values[name];
+              chip.className = 'capture-value-chip' + (val ? ' true' : '');
+              chip.textContent = name + '=' + (val ? 'vrai' : 'faux');
+              row.appendChild(chip);
+            });
+            valuesGroup.appendChild(row);
+          });
+        }
+        details.appendChild(valuesGroup);
+
+        var trGroup = document.createElement('div');
+        var trTitle = document.createElement('h4');
+        trTitle.textContent = 'Traduction FR';
+        trGroup.appendChild(trTitle);
+        if(!cap.translation || cap.translation.length===0){
+          var noTr = document.createElement('p');
+          noTr.textContent = 'Aucune formule évaluée au moment de la capture.';
+          trGroup.appendChild(noTr);
+        } else {
+          cap.translation.forEach(function(t){
+            var p = document.createElement('p');
+            var b = document.createElement('b');
+            b.textContent = 'w' + t.id + ' — ';
+            p.appendChild(b);
+            p.appendChild(document.createTextNode(t.text));
+            trGroup.appendChild(p);
+          });
+        }
+        details.appendChild(trGroup);
+
+        item.appendChild(details);
+      }
+
+      captureGrid.appendChild(item);
     });
   }
 
@@ -1455,13 +1745,22 @@
 
   function renderSymbolsRow(){
     symbolsRow.innerHTML = '';
-    var symbols = ['¬','∧','∨','→','↔','□','◇','(',')'];
+    var symbols = ['¬','∧','∨','→','↔','□','◇','(',')','⌫','◀','▶'];
+    var cursorLabels = { '◀':'Déplacer le curseur à gauche', '▶':'Déplacer le curseur à droite' };
     symbols.forEach(function(sym){
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'sym-btn';
       b.textContent = sym;
-      b.addEventListener('click', function(){ insertAtCursor(sym); });
+      if(sym==='⌫'){
+        b.setAttribute('aria-label','Effacer le caractère précédent');
+        b.addEventListener('click', backspaceAtCursor);
+      } else if(sym==='◀' || sym==='▶'){
+        b.setAttribute('aria-label', cursorLabels[sym]);
+        b.addEventListener('click', function(){ moveCursor(sym==='◀' ? -1 : 1); });
+      } else {
+        b.addEventListener('click', function(){ insertAtCursor(sym); });
+      }
       symbolsRow.appendChild(b);
     });
     state.atoms.forEach(function(name){
@@ -1472,6 +1771,21 @@
       b.addEventListener('click', function(){ insertAtCursor(name); });
       symbolsRow.appendChild(b);
     });
+    var addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'sym-btn wide prop-add';
+    addBtn.textContent = '+ proposition';
+    addBtn.setAttribute('aria-label','Créer une nouvelle proposition');
+    addBtn.addEventListener('click', addProposition);
+    symbolsRow.appendChild(addBtn);
+    var delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'sym-btn wide prop-del';
+    delBtn.textContent = '− proposition';
+    delBtn.disabled = state.atoms.length===0;
+    delBtn.setAttribute('aria-label','Supprimer la dernière proposition');
+    delBtn.addEventListener('click', removeLastProposition);
+    symbolsRow.appendChild(delBtn);
   }
 
   function insertAtCursor(text){
@@ -1487,10 +1801,79 @@
     render();
   }
 
+  function backspaceAtCursor(){
+    var start = formulaInput.selectionStart;
+    var end = formulaInput.selectionEnd;
+    if(start==null) start = formulaInput.value.length;
+    if(end==null) end = start;
+    var val = formulaInput.value;
+    if(start===end){
+      if(start===0) return;
+      start = start - 1;
+    }
+    formulaInput.value = val.slice(0,start) + val.slice(end);
+    formulaInput.focus();
+    formulaInput.setSelectionRange(start,start);
+    state.formula = formulaInput.value;
+    persist();
+    render();
+  }
+
+  function moveCursor(dir){
+    var start = formulaInput.selectionStart;
+    if(start==null) start = formulaInput.value.length;
+    var pos = start + dir;
+    if(pos<0) pos = 0;
+    if(pos>formulaInput.value.length) pos = formulaInput.value.length;
+    formulaInput.focus();
+    formulaInput.setSelectionRange(pos,pos);
+  }
+
+  function nextAtomName(){
+    var pool = 'pqrstuvxyzabcdefghijklmno'.split('');
+    for(var i=0;i<pool.length;i++){
+      if(state.atoms.indexOf(pool[i])===-1) return pool[i];
+    }
+    var n = 1;
+    while(state.atoms.indexOf('p'+n)!==-1) n++;
+    return 'p'+n;
+  }
+
+  function usesAtom(text, name){
+    try{
+      return new RegExp('\\b'+name+'\\b').test(text||'');
+    }catch(e){
+      return (text||'').indexOf(name) !== -1;
+    }
+  }
+
+  function addProposition(){
+    var name = nextAtomName();
+    state.atoms.push(name);
+    state.worlds.forEach(function(w){ ensureValuation(w.id); });
+    persist();
+    render();
+  }
+
+  function removeLastProposition(){
+    if(state.atoms.length===0) return;
+    var name = state.atoms[state.atoms.length-1];
+    state.atoms = state.atoms.slice(0,-1);
+    Object.keys(state.valuation).forEach(function(wid){
+      if(state.valuation[wid]) delete state.valuation[wid][name];
+    });
+    if(usesAtom(state.formula, name)){
+      state.formula = '';
+      formulaInput.value = '';
+    }
+    persist();
+    render();
+  }
+
   /* ---------- interaction ---------- */
 
   function addWorld(x,y){
-    var id = state.nextId++;
+    var id = nextWorldId();
     state.worlds.push({id:id, x:x, y:y});
     ensureValuation(id);
     state.active = id;
